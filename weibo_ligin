@@ -1,0 +1,54 @@
+# 通过⽤ selenium控制PhantomJS登录微博,获取cookie,然后为所欲为
+
+import time
+import requests
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+
+if __name__ == '__main__':
+    #获取webdriverd对象
+    driver = webdriver.Chrome()
+    driver.delete_all_cookies()
+    driver.set_window_size(1280, 2400)
+
+    driver.get('http://weibo.com')
+    time.sleep(5)
+    #获取到选择器
+    loginname = driver.find_element_by_id('loginname')
+    print(driver.title)
+    # 登录用户名和密码
+    with open('./123') as f:
+        email, pwd = f.read().split(' ')
+        print(email, pwd)
+    for i in email:
+        loginname.send_keys(i)
+        time.sleep(0.1)
+    loginname.send_keys(Keys.TAB)
+    time.sleep(0.1)
+    password = driver.find_element_by_xpath('//input[@name="password"]')
+    for i in pwd:
+        password.send_keys(i)
+        time.sleep(0.1)
+    time.sleep(10)
+
+    driver.find_element_by_xpath('//a[@action-type="btn_submit"]').click()
+    cookies = driver.get_cookies()
+    print(cookies)
+    username = driver.find_element_by_xpath('//a[@class="name S_txt1"]').text
+    print(username)
+
+    # 拿到登录的cookie,可以从任意地方登录
+    request_cookies = {c['name']: ['value'] for c in cookies}
+    requests.get('https://weibo.com').text.find(username)
+    requests.get('https://weibo.com', cookies=request_cookies).text.find(username)
+
+    driver.close()
+    driver.quit()
+'''
+#下翻到页面底部
+    driver.execute_script('window.scrillTo(0,document.body.scrollHeight)')
+
+    #获取页面的feeds
+    feeds = driver.find_element_by_xpath('')
+'''
+
